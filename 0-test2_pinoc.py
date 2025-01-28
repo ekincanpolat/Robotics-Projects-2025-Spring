@@ -1,4 +1,4 @@
-"""testing that pinocchio works-2"""
+"""testing that pinocchio works-2/code from its library"""
 
 from pathlib import Path
 from sys import argv
