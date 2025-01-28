@@ -15,9 +15,11 @@ Initial environment setups, dependencies, and configurations for the project.
 ## 📜 Timeline
 
 Each numbered folder or section describes a phase of the project. The numbering follows the chronological order of progress:
-1. **0 Drafts**: Early-stage files and experiments.
+1. **0 Drafts File**: Early-stage files and experiments, used as my draft workspace before I open a initial page.
 2. **0 Initial Setups**: Setting up the development environment and tools.
-3. Future phases will be added as the project progresses.
+
+
+Rest of the numbers are the chronogical order of my learning process.
 
 ---
 
