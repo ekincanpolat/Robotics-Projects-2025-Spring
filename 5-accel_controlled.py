@@ -1,5 +1,4 @@
-"""Testing the end effector movement with velocity and acceleration control """
-"""Since pybullet/pinocchio does not have any direct set acceleration funcs, I used Newton's law for accel"""
+"""Velocity-controlled KUKA iiwa movement using acceleration integration"""
 
 import pybullet as p
 import pybullet_data
@@ -12,62 +11,58 @@ p.setGravity(0, 0, -9.81)
 
 robot_id = p.loadURDF("kuka_iiwa/model.urdf", useFixedBase=True)
 
-start_pos = np.array([0, 0, 1])  # Start position
-goal_pos = np.array([0.5, 0.5 ,0.5])  # End position
+start_pos = np.array([0,0 , 0])
+goal_pos = np.array([-1,-1,1])
 
-#change to see differences
-velocity_target = 0.01
-max_accel = 0.0005
+dt = 1 / 240.0
+velocity_target = 0.5  # max speed target (m/s)
+max_accel = 0.2  # max accel (m/s²)
 
 end_effector_index = 6
 
-num_steps = int(np.linalg.norm(goal_pos - start_pos) / velocity_target)
-t = np.linspace(0, 1, num_steps)
-trajectory = (1 - t)[:, None] * start_pos + t[:, None] * goal_pos
+num_steps = int(np.linalg.norm(goal_pos - start_pos) / velocity_target / dt)
+t_values = np.linspace(0, 1, num_steps)
+trajectory = (1 - t_values)[:, None] * start_pos + t_values[:, None] * goal_pos
 
-# initial velocity
-velocity_current = 0.0
+num_joints = p.getNumJoints(robot_id)
+velocity_current = np.zeros(num_joints)
 
-print("Simulation begins, wait for 2 secs")
+print("Simulation started...Waiting 2 seconds...")
 time.sleep(2)
 
-print(f"Total number of steps: {num_steps}")
-
 for step, target_pos in enumerate(trajectory):
-    print(f"\nStep {step+1}/{num_steps} - Target Pos: {target_pos}")
+    print(f"\nStep {step+1}/{num_steps} - Target Position: {target_pos}")
 
     joint_positions = p.calculateInverseKinematics(robot_id, end_effector_index, target_pos)
 
-    print(f"Inverse Kinematics Joint Positions: {joint_positions}")
+    joint_states = [p.getJointState(robot_id, i) for i in range(num_joints)]
+    joint_angles = np.array([state[0] for state in joint_states])  # starting angles for
 
-    # accel controlled velocity increase
-    #v=v0+a⋅t-> Newton's law
-    #basically it adds the number given as max_accel until it reaches the target velocity so that the speed can be controlled
-    #with a range to observe the movement smoothly
-    if velocity_current < velocity_target:
-        velocity_current += max_accel * (1 / 240.0)
+    # v = v_0 + a * dt
+    for i in range(num_joints):
+        delta_angle = joint_positions[i] - joint_angles[i]
+        target_velocity = delta_angle * 240.0
 
-    else:
-        velocity_current = velocity_target  # limiting so that unexpected increase can be avoided
+        # accel limitation to control
+        velocity_change = max_accel * dt  # v = v_0 + a * dt
+        if abs(target_velocity) > abs(velocity_current[i]):
+            velocity_current[i] += np.sign(target_velocity) * velocity_change
+            #i used sign so that the acceleration dont affect the rotation, my initial version had issues with rotation
+        else:
+            velocity_current[i] = target_velocity  # after reaching to the target state,
 
-    print(f"Current Velocity: {velocity_current}")
-
-    for i, joint_pos in enumerate(joint_positions):
-        current_joint_angle = p.getJointState(robot_id, i)[0]
-        target_velocity = (joint_pos - current_joint_angle) * 240.0  # sim freq = 240Hz
-        print(f"Joint {i}: Current Angle={current_joint_angle:.3f}, Target={joint_pos:.3f}, Target Velocity={target_velocity:.3f}")
         p.setJointMotorControl2(
             bodyUniqueId=robot_id,
             jointIndex=i,
             controlMode=p.VELOCITY_CONTROL,
-            targetVelocity=target_velocity,
+            targetVelocity=velocity_current[i],
             force=50.0
         )
 
     p.stepSimulation()
-    time.sleep(1 / 240.0)
+    time.sleep(dt)
 
-print("Simulation ends, wait for 2 secs")
+print("Simulation ended...Waiting 2 seconds...")
 time.sleep(2)
 
 p.disconnect()
