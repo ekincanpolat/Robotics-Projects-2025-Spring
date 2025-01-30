@@ -13,11 +13,11 @@ p.setGravity(0, 0, -9.81)
 robot_id = p.loadURDF("kuka_iiwa/model.urdf", useFixedBase=True)
 
 start_pos = np.array([0, 0, 1])  # Start position
-goal_pos = np.array([0.5, 0.5 ,0])  # End position
+goal_pos = np.array([0.5, 0.5 ,0.5])  # End position
 
 #change to see differences
 velocity_target = 0.01
-max_accel = 0.0000005
+max_accel = 0.0005
 
 end_effector_index = 6
 
