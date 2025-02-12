@@ -4,7 +4,6 @@ import pybullet_data
 import numpy as np
 from gymnasium import spaces
 
-
 class KukaEnv(gym.Env):
     def __init__(self):
         super(KukaEnv, self).__init__()
@@ -31,7 +30,6 @@ class KukaEnv(gym.Env):
 #for each training period, in the start to take the agent to initial and reset the environment
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-
         p.resetSimulation(self.physics_client)
         p.setGravity(0, 0, -9.8)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -45,10 +43,12 @@ class KukaEnv(gym.Env):
         for i in range(7):
             p.resetJointState(self.robot_id, i, self.initial_joint_positions[i])
 
-        return self._get_observation()
+        obs = self._get_observation()
 
+        info = {}
 
-#to make the actions work on robot
+        return obs, info
+
     def step(self, action):
 
         for i in range(7):
@@ -64,20 +64,22 @@ class KukaEnv(gym.Env):
 
         #job: End efector gets close to a target
         end_effector_pos = self._get_end_effector_position()
-        target_pos = [0.5, 0.5, 0.5]
+        target_pos = [0.5, 0, 0.3]
         distance_to_target = np.linalg.norm(np.array(end_effector_pos) - np.array(target_pos))
 
         ############ REWARD CALCULATIONS ############
         reward = -distance_to_target
 
-        # if its's so close to the target, reward higher the robot
-        done = distance_to_target < 0.05
-        if done:
-            reward += 10
+        #if it's so close big reward
+        terminated = distance_to_target < 0.05
+        truncated = False  # for time limit
 
         info = {}
 
-#downwards two func gets the current situations
+        return obs, reward, terminated, truncated, info  # Artık 5 değer döndürüyoruz!
+
+    # downwards two func gets the current situations
+
     def _get_observation(self):
         joint_states = [p.getJointState(self.robot_id, i)[0] for i in range(7)]
         end_effector_pos = self._get_end_effector_position()

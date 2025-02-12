@@ -8,7 +8,7 @@ env = DummyVecEnv([lambda: KukaEnv()])
 #Verbose-> prints out the state
 model = PPO("MlpPolicy", env, verbose=1)
 
-model.learn(total_timesteps=100000)
+model.learn(total_timesteps=500000)
 
 model.save("ppo_kuka_iiwa")
 
