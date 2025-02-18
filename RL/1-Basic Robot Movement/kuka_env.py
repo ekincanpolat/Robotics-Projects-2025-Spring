@@ -4,6 +4,7 @@ import pybullet_data
 import numpy as np
 from gymnasium import spaces
 
+
 class KukaEnv(gym.Env):
     def __init__(self):
         super(KukaEnv, self).__init__()
@@ -71,12 +72,12 @@ class KukaEnv(gym.Env):
         reward = -distance_to_target
 
         #if it's so close big reward
-        terminated = distance_to_target < 0.05
+        terminated = distance_to_target < 0.008
         truncated = False  # for time limit
 
         info = {}
 
-        return obs, reward, terminated, truncated, info  # Artık 5 değer döndürüyoruz!
+        return obs, reward, terminated, truncated, info
 
     # downwards two func gets the current situations
 

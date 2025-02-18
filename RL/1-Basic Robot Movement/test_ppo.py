@@ -10,7 +10,7 @@ env = DummyVecEnv([lambda: KukaEnv()])
 # test the model for 20 steps
 obs = env.reset()
 
-for _ in range(40):
+for _ in range(100):
     action, _states = model.predict(obs)  # PPO agent produces actions according to the existing observation
     obs, rewards, dones, infos = env.step(action)
     env.render()  # visualize

@@ -8,6 +8,13 @@ env = DummyVecEnv([lambda: KukaEnv()])
 #Verbose-> prints out the state
 model = PPO("MlpPolicy", env, verbose=1)
 
+try:
+    model = PPO.load("ppo_kuka_iiwa", env=env)  # Daha önce eğitilmiş model varsa yükle
+    print("Mevcut model yüklendi, eğitime devam ediliyor...")
+except:
+    model = PPO("MlpPolicy", env, verbose=1)
+    print("Yeni model oluşturuldu, sıfırdan eğitim başlıyor...")
+
 model.learn(total_timesteps=500000)
 
 model.save("ppo_kuka_iiwa")
