@@ -1,3 +1,5 @@
+#robot moves to a point with position control algoritm
+
 import gymnasium as gym
 import pybullet as p
 import pybullet_data
