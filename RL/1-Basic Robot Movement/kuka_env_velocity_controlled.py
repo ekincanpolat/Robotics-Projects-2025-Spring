@@ -54,7 +54,7 @@ class KukaEnv(gym.Env):
         target_pos = [0.5, 0, 0.3]
         distance_to_target = np.linalg.norm(np.array(end_effector_pos) - np.array(target_pos))
 
-        reward = -distance_to_target  # Velocity etkisini şimdilik çıkardık
+        reward = -distance_to_target 
         terminated = distance_to_target < 0.01
         truncated = False
 
