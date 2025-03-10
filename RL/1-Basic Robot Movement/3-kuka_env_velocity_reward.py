@@ -68,7 +68,7 @@ class KukaEnv(gym.Env):
         #summing the squared velocities ensures that arger speeds are penalized more and removes the effect of direction
         #we extract that to lower the price to provice promotes smooth, controlled movements in uncontrolled movement
 
-        k1, k2 = 10, 0  # constants
+        k1, k2 = 10, 0.1  # constants
         reward = k1 * (1 / (1 + distance_to_target**2)) + k2 * velocity_penalty**2
 
         terminated = distance_to_target < 0.008
