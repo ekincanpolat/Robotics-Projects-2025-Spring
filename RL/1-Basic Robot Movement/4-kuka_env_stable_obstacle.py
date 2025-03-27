@@ -64,16 +64,16 @@ class KukaEnv(gym.Env):
         joint_velocities = np.array([p.getJointState(self.robot_id, i)[1] for i in range(7)])
 
         # reward func
-        k1, k2, k3, k4 = 12, 0.05, 2, 15
+        k1, k2, k3, k4 = 11, 0.05, 2, 15
       #same as before this part
         reward = k1 * (1 / (1 + distance_to_target ** 2)) - k2 * np.sum(np.square(joint_velocities))
       #ADDITIONS!!
         # if it gets too close to the obstacle, punishment with a medium constant
         if distance_to_obstacle < 0.01:
-            reward -= k3 * (0.01 - distance_to_obstacle)
+            reward -= k3 * ( distance_to_obstacle)
 
         #if its touching the obstacle, a big punishment
-        if distance_to_obstacle < 0.005:
+        if distance_to_obstacle < 0.001:
             reward -= k4
 
 
